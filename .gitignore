@@ -1,0 +1,24 @@
+# Secretos locales -- nunca commitear (ver docs/03_architecture_patterns/secrets-management.md)
+# Se excluye el contenido de .local/ EXCEPTO la plantilla, que SI debe estar trackeada:
+# es la que documenta qué claves necesita cada persona que clone el repo.
+.local/*
+!.local/secrets.template.json
+**/*.local.json
+**/*.local.secret
+
+# Configs reales copiados de los .template.
+#
+# OJO: esta exclusión aplica al repo DEL FRAMEWORK, donde solo viven las plantillas.
+# En TU proyecto, `_config.ps1`/`_config.sh` SÍ deben estar trackeados: no contienen
+# secretos (solo hosts, puertos, patrones de rutas) y el equipo necesita compartirlos.
+# Ver secrets-management.md. Si copias este .gitignore a tu proyecto, borra estas dos líneas.
+scripts/_config.ps1
+scripts/_config.sh
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+*.swp
+
+# Respaldos que generan bootstrap-ai y sanitize-encoding
+*.bak

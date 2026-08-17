@@ -1,0 +1,6 @@
+# Scripts shell: SIEMPRE LF en el working tree, incluso en Windows.
+# Ver docs/03_architecture_patterns/incident-log-pattern.md y
+# examples/case-study-admin-console.md -- este es el incidente que origino el
+# primer chequeo de safety-check.ps1/.sh. El framework se aplica a si mismo
+# la misma regla que documenta.
+*.sh text eol=lf

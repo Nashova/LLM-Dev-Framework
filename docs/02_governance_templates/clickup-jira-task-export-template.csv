@@ -1,0 +1,6 @@
+Task ID,Task Name,Description,Status,Priority,Due Date,Assignee,Tags
+T01,Crear migracion de base de datos,"Crear migracion para agregar nuevas columnas con indices adecuados.",TO DO,High,,Dev Team,backend;database
+T02,Implementar modelo y validaciones,"Definir asociaciones, validaciones de presencia y callbacks en el modelo.",TO DO,High,,Dev Team,backend;model
+T03,Crear controlador y endpoints REST,"Exponer endpoints en controlador con autorizacion y manejo de errores.",TO DO,High,,Dev Team,backend;api
+T04,Implementar interfaz de usuario (UI),"Crear componente, formulario y vincular estado con feedback visual.",TO DO,Normal,,Frontend Team,frontend;ui
+T05,Pruebas automatizadas y validacion,"Implementar tests unitarios y ejecutar script validate-knowledge-base.",TO DO,Normal,,QA Team,testing;qa
