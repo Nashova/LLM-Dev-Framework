@@ -13,6 +13,7 @@ Colección de herramientas automatizadas (PowerShell `.ps1` para Windows y Bash 
 | `safety-check.ps1` / `.sh` | Chequeo de sintaxis, line-endings LF en scripts shell y alerta de "archivos de alto riesgo modificados sin actualizar doc viva". | En local antes de commitear. |
 | `ship.ps1` / `.sh` | Pipeline automatizado: safety-check -> commit -> deploy opcional -> push -> creación/actualización de PR vía API REST (GitHub / Azure DevOps / GitLab). | Para entregar cambios formalmente. |
 | `git-provider-pr.ps1` / `.sh` | Cliente REST desacoplado de CLIs externos para interactuar con proveedores Git sin fallar bajo firewalls corporativos. | Invocado internamente por `ship`. |
+| `install-skills.ps1` / `.sh` | Traduce las skills de `skills/` al formato nativo de 8 herramientas (Claude Code, Cursor, Copilot, Windsurf, Continue, Gemini, Codex, y un playbook genérico para modelos locales). Una skill se escribe una vez, no seis. | **Al iniciar el proyecto** y cada vez que se edite o agregue una skill. |
 
 ## Dependencias
 
@@ -25,6 +26,19 @@ Colección de herramientas automatizadas (PowerShell `.ps1` para Windows y Bash 
 
 Los tokens **nunca** se pasan como argumento de `curl` (serían visibles en `ps` para cualquier usuario
 del host); viajan por stdin vía `curl --config -`. Ver `git-provider-pr.sh`.
+
+### Convención de encoding en los `.ps1` (no es cosmética)
+
+**Los `.ps1` de este framework se escriben en ASCII puro, sin acentos ni guiones largos.** No es una
+preferencia de estilo: PowerShell 5.1 lee un archivo `.ps1` sin BOM como ANSI (CP1252), y varios
+caracteres tipográficos comunes se decodifican como comillas que **PowerShell acepta como delimitador de
+cadena**. Un guion largo `—` (`E2 80 94` en UTF-8) se convierte en `â€"`, cuyo último byte es `U+201D` —
+una comilla de cierre. El resultado es que la cadena termina antes de tiempo y el script falla con una
+cascada de errores de sintaxis que no señalan la línea culpable.
+
+Al agregar o editar un `.ps1`, usá `--` en vez de `—` y `a` en vez de `á`. Los `.sh` y los `.md` no tienen
+esta restricción: usan UTF-8 sin problema. Ver
+[`encoding-and-text-hygiene.md`](../docs/03_architecture_patterns/encoding-and-text-hygiene.md).
 
 ## Cómo adaptar a un proyecto nuevo
 

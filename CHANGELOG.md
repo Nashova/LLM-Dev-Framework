@@ -10,6 +10,48 @@ framework aplicándose a sí mismo la misma regla.
 
 ## [No liberado]
 
+### Agregado — sistema de skills
+
+- **`skills/`**: nueve skills propias del framework (MIT, sin dependencias de terceros) que codifican su
+  filosofía en protocolos que se auto-disparan: `verify-before-claiming`, `project-onboarding`,
+  `safe-change-gate`, `ship-changes`, `incident-capture`, `doc-drift-check`, `requirements-intake`,
+  `pre-publication-audit` y `small-model-handoff`.
+- **`scripts/install-skills.ps1` / `.sh`**: traduce cada skill —escrita una sola vez en formato Agent
+  Skills— al formato nativo de ocho herramientas: Claude Code, Cursor, GitHub Copilot, Windsurf,
+  Continue.dev, Gemini CLI, Codex/`AGENTS.md` y un playbook genérico con tabla de ruteo para cualquier
+  modelo local. Soporta `--tool all`, `--skills`, `--dry-run`, `--force` y `--list`. Nunca sobrescribe un
+  archivo que no generó él mismo.
+- **`skills/CATALOG.md`**: catálogo curado de skills externas con su licencia **verificada contra el repo
+  real**. Deliberadamente **no** se redistribuye contenido de terceros: varias skills que circulan no
+  declaran licencia, y una del ecosistema de Anthropic está cubierta por términos comerciales, no OSS. El
+  catálogo enlaza al upstream y explica cómo instalar desde la fuente.
+- **`docs/01_bootstrap/llm-setup-guide.md`**: instalación paso a paso por herramienta, incluidos ChatGPT
+  (como Project), Ollama, LM Studio y aider.
+- **`docs/00_philosophy/working-with-small-models.md`**: cómo entregar con un modelo local de 7B-30B sin
+  bajar la calidad. Define qué componente del framework se degrada con el tamaño del modelo (sólo el
+  juicio; los scripts no se degradan en absoluto), una escalera de degradación de seis peldaños, qué
+  esperar de cada tamaño, y la lista de tareas que no se delegan nunca.
+- **`examples/case-study-self-audit.md`**: cuarto caso de estudio — el framework auditándose a sí mismo
+  antes de publicarse. Documenta el método, los hallazgos por clase, los dos bugs que sólo aparecieron al
+  ejecutar, y los dos errores del propio proceso de auditoría.
+
+### Corregido — segunda ronda
+
+- `scripts/get-project-map.ps1` hacía **siete recorridos recursivos completos** del disco (uno por
+  lenguaje) y filtraba después con `Where-Object`, así que atravesaba `node_modules` siete veces y contaba
+  dependencias ajenas como código propio. Ahora usa `git ls-files` como fuente primaria: instantáneo y ya
+  respeta `.gitignore`. Fallback a recorrido de disco sólo si no es un repo git.
+- `get-project-map` (ambos sabores) sólo reconocía Ruby, TypeScript, Python y C#. Ahora detecta además
+  JavaScript, JSX, Vue, Svelte, Go, Java, Kotlin, PHP, Rust, Swift y SQL, y reporta el total de archivos
+  considerados.
+- `docs/03_architecture_patterns/encoding-and-text-hygiene.md`: documentado un modo de falla nuevo y no
+  obvio — un guion largo dentro de un string de un `.ps1` **rompe el parseo entero del script** en
+  PowerShell 5.1, porque lee el archivo sin BOM como CP1252 y el último byte del guion largo es `U+201D`,
+  una comilla que PowerShell acepta como delimitador de cadena. Incluye el detector y la convención
+  adoptada (los `.ps1` del framework se escriben en ASCII puro).
+- `scripts/README.md`: documentada esa convención de encoding para los `.ps1`, con la explicación de por
+  qué no es cosmética.
+
 ### Cambiado — anonimización completa (el repo es público)
 
 - Los tres casos de estudio se anonimizaron y renombraron: ya no contienen nombres de sistema,

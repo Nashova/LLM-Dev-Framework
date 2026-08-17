@@ -33,26 +33,50 @@ Nace de destilar la experiencia real en tres sistemas de escala, stack y problem
 ```
 LLM-Dev-Framework/
 ├── AGENT_GUIDE.md                       → La guía maestra universal (Single Source of Truth para todas las IAs)
-├── LICENSE                              → MIT
+├── LICENSE / CHANGELOG.md               → MIT; historial de cambios del framework
+├── skills/                              → 9 skills propias que auto-disparan los protocolos del framework
+│   ├── README.md                        → Qué hace cada skill y cómo instalarlas
+│   ├── CATALOG.md                       → Catálogo curado de skills externas, con licencia verificada
+│   └── <nombre>/SKILL.md                → Una carpeta por skill (formato Agent Skills)
 ├── scripts/                             → Herramientas operativas automatizadas (PowerShell + Bash)
 │   ├── README.md                        → Qué hace cada script, sus flags y sus dependencias
 │   ├── _config.template.ps1 / .sh       → Plantilla de configuración por proyecto (cópiala como _config.*)
 │   ├── get-project-map.ps1 / .sh        → Mapa mental instantáneo: ramas, dirty files, métricas y puertos
 │   ├── validate-knowledge-base.ps1 /.sh → Validador de citas archivo:línea en docs (Anti-Drift)
 │   ├── bootstrap-ai.ps1 / .sh           → Conector Multi-IA (genera CLAUDE.md, AGENTS.md, .cursorrules, etc.)
+│   ├── install-skills.ps1 / .sh         → Traduce skills/ al formato nativo de 8 herramientas de IA
 │   ├── sanitize-encoding.ps1 / .sh      → Limpieza de mojibake y caracteres de control XML
 │   ├── safety-check.ps1 / .sh           → Verificación de sintaxis, line-endings y doc viva
 │   ├── git-provider-pr.ps1 / .sh        → Crea PR/MR vía API REST (GitHub/GitLab/Azure DevOps/Bitbucket)
 │   └── ship.ps1 / .sh                   → Pipeline de commit, test, deploy y PR
 ├── docs/
-│   ├── 00_philosophy/                   → 6 principios de colaboración humano-IA, memoria y frescura
-│   ├── 01_bootstrap/                    → Guía paso a paso para arrancar cualquier proyecto nuevo
+│   ├── 00_philosophy/                   → 7 principios de colaboración humano-IA, memoria y frescura
+│   ├── 01_bootstrap/                    → Checklist de arranque + guía de instalación por herramienta de IA
 │   ├── 02_governance_templates/         → 11 plantillas listas (Knowledge Base, SDD, Postmortem, SOP, REQ, PROY, CSV)
 │   └── 03_architecture_patterns/        → 23 patrones arquitectónicos probados en producción
 └── examples/                            → 3 casos de estudio anonimizados (casos A, B y C)
 ```
 
-## Cómo iniciar un proyecto nuevo en 4 pasos
+## Skills: los protocolos que se disparan solos
+
+Una regla escrita en un documento de 400 líneas se lee la primera sesión y se olvida. Una **skill** con la
+descripción correcta se activa exactamente cuando hace falta.
+
+El framework incluye 9 skills propias que codifican su filosofía en forma ejecutable, entre ellas
+`verify-before-claiming` (la que ataca el error más caro de un LLM: afirmar algo falso con confianza) y
+`safe-change-gate`. Se escriben una vez y un instalador las traduce al formato nativo de cada herramienta:
+
+```bash
+bash scripts/install-skills.sh --list                                 # ver qué hay
+bash scripts/install-skills.sh --target /mi-proyecto --tool claude     # o cursor, copilot, windsurf...
+bash scripts/install-skills.sh --target /mi-proyecto --tool all        # si el equipo usa varias
+```
+
+Detalle completo en [`skills/README.md`](skills/README.md). Para skills de stack específico (React, .NET,
+Docker) ver [`skills/CATALOG.md`](skills/CATALOG.md), que apunta a los repos upstream con su licencia
+verificada en vez de redistribuirlos.
+
+## Cómo iniciar un proyecto nuevo en 5 pasos
 
 Todos los comandos se ejecutan **desde la raíz de tu proyecto**, no desde el repo del framework. `$FW` es la ruta donde clonaste este repo.
 
@@ -65,7 +89,14 @@ Todos los comandos se ejecutan **desde la raíz de tu proyecto**, no desde el re
    (En Windows: `powershell -File $FW\scripts\bootstrap-ai.ps1`.) Se corre con **tu proyecto** como directorio actual — genera `CLAUDE.md`, `.cursorrules`, `GEMINI.md`, etc. junto a tu `AGENT_GUIDE.md`, y pide confirmación antes de sobrescribir cualquier archivo que ya exista.
 2. **Estructura Documental**: copia `$FW/docs/02_governance_templates/` a tu proyecto como `Docs/03_governance_and_guidelines/` y renombra cada plantilla quitándole el sufijo `-template` (ej. `architecture-template.md` → `architecture.md`). Empieza llenando `architecture.md` y `change-safety.md`.
 3. **Scripts de Operación**: copia `$FW/scripts/` a tu proyecto, renombra `_config.template.ps1`/`.sh` como `_config.ps1`/`.sh` y ajusta las variables de tu stack. Ese archivo **sí se commitea** (no contiene secretos); los secretos van en un archivo aparte gitignored — ver [`secrets-management.md`](docs/03_architecture_patterns/secrets-management.md).
-4. **Verificación Continua**: ejecuta periódicamente `get-project-map.ps1` para dar contexto a la IA y `validate-knowledge-base.ps1` para asegurar que la documentación jamás mienta sobre el código.
+4. **Skills**: instala los protocolos que se auto-disparan, en el formato de la herramienta que uses:
+
+   ```bash
+   bash "$FW/scripts/install-skills.sh" --target . --tool claude
+   ```
+
+   Reemplaza `claude` por `cursor`, `copilot`, `windsurf`, `continue`, `gemini`, `codex` o `generic`; o usa `--tool all` si el equipo usa varias. Paso a paso por herramienta en [`docs/01_bootstrap/llm-setup-guide.md`](docs/01_bootstrap/llm-setup-guide.md).
+5. **Verificación Continua**: ejecuta periódicamente `get-project-map.ps1` para dar contexto a la IA y `validate-knowledge-base.ps1` para asegurar que la documentación jamás mienta sobre el código.
 
 El checklist detallado, con casillas, está en [`docs/01_bootstrap/new-project-checklist.md`](docs/01_bootstrap/new-project-checklist.md).
 
@@ -75,6 +106,22 @@ El checklist detallado, con casillas, está en [`docs/01_bootstrap/new-project-c
 - **git** en el `PATH`.
 - Para los scripts `.sh`: `curl` y `python3` (para parsear el JSON de las APIs de git sin depender de `jq`).
 - Opcional: `gh` CLI. Si no está instalado, `git-provider-pr` usa la API REST directamente.
+
+## ¿Funciona con un modelo local o pequeño?
+
+Sí, y no bajando la calidad del entregable. El framework tiene tres tipos de componente y **solo uno se
+degrada con el tamaño del modelo**: los **scripts** son deterministas (un modelo de 7B corriendo
+`safety-check` obtiene el resultado idéntico a uno de frontera), las **plantillas** casi no se degradan, y
+el **juicio** sí se degrada mucho.
+
+La estrategia es entonces mover trabajo desde el modelo hacia la estructura: un paso por turno con criterio
+de terminado verificable por comando, contexto mínimo dirigido, plantillas en vez de redacción libre, y
+verificación externa tras cada paso. La guía completa —con qué esperar de un 7B / 14B / 30B, la escalera de
+degradación y qué **no** delegarle nunca— está en
+[`docs/00_philosophy/working-with-small-models.md`](docs/00_philosophy/working-with-small-models.md).
+
+Lo que recomendamos es el modelo híbrido: un modelo grande descompone y revisa, un modelo local ejecuta, y
+los scripts verifican. La skill `small-model-handoff` existe para producir ese plan en el formato correcto.
 
 ## Alcance: qué aplica a tu proyecto y qué no
 
