@@ -8,6 +8,10 @@
 # CLAUDE.md/.cursorrules/etc. escrito a mano, lo deja intacto y avisa. Con --force lo respalda
 # como <archivo>.bak antes de reemplazarlo.
 #
+# ENLACES RELATIVOS: los destinos que viven en un subdirectorio (.github/copilot-instructions.md)
+# reciben los enlaces de AGENT_GUIDE.md reescritos con el '../' que corresponde a su profundidad.
+# Los destinos en la raiz se copian sin tocar.
+#
 # Uso: bash scripts/bootstrap-ai.sh [ruta] [--force] [--dry-run]
 
 set -euo pipefail
@@ -55,11 +59,39 @@ WRITTEN=0
 SKIPPED=0
 BACKED=0
 
+# Reescribe los enlaces relativos de Markdown para un destino que vive N niveles
+# por debajo de la raiz del proyecto. Sin esto, un archivo generado en un
+# subdirectorio (el caso real: .github/copilot-instructions.md) hereda los enlaces
+# de AGENT_GUIDE.md tal cual, y todos apuntan a un nivel que ya no existe desde ahi.
+#
+# Se reescribe solo lo que es una ruta relativa de verdad: el patron exige que el
+# destino empiece con letra/digito/punto/guion-bajo (excluye anclas '#...' y rutas
+# absolutas '/...') y que NO contenga ':' (excluye 'https://', 'mailto:',
+# 'obsidian://' y rutas tipo 'C:\...').
+rewrite_relative_links() {
+    local depth="$1"
+    local prefix=""
+    local i
+    for (( i = 0; i < depth; i++ )); do
+        prefix="../$prefix"
+    done
+    if [ -z "$prefix" ]; then
+        cat
+    else
+        sed -E "s#\]\(([A-Za-z0-9_.][^):]*)\)#](${prefix}\1)#g"
+    fi
+}
+
 sync_file() {
     local name="$1"
     local dest="$2"
     local leaf
     leaf="$(basename "$dest")"
+
+    # Profundidad del destino respecto a la raiz: cuantos '/' tiene su ruta relativa.
+    local rel depth
+    rel="${dest#"$ROOT_FULL"/}"
+    depth="$(printf '%s' "$rel" | tr -cd '/' | wc -c | tr -d ' ')"
 
     if [ -f "$dest" ]; then
         # ¿La primera linea es nuestro marcador? Entonces es una resincronizacion legitima.
@@ -78,9 +110,13 @@ sync_file() {
 
     if [ "$DRY_RUN" -eq 0 ]; then
         mkdir -p "$(dirname "$dest")"
-        { printf '%s\n\n' "$MARKER"; cat "$SOURCE_GUIDE"; } > "$dest"
+        { printf '%s\n\n' "$MARKER"; rewrite_relative_links "$depth" < "$SOURCE_GUIDE"; } > "$dest"
     fi
-    echo "  [OK] $name -> $leaf"
+    if [ "$depth" -gt 0 ]; then
+        echo "  [OK] $name -> $leaf (enlaces relativos ajustados $depth nivel(es))"
+    else
+        echo "  [OK] $name -> $leaf"
+    fi
     WRITTEN=$((WRITTEN + 1))
 }
 

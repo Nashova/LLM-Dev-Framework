@@ -50,6 +50,18 @@ $global:DOC_FILES = @(
 )
 
 # ============================================================================
+# Repos externos para validate-knowledge-base.ps1/.sh
+# ============================================================================
+# Si la documentacion de este proyecto cita a proposito archivos que viven en
+# OTRO repo -- tipicamente este framework ("ver docs/03_architecture_patterns/
+# xxx.md del framework") -- declaralo aca. Esas citas no estan rotas, pero sin
+# esta lista el validador las reporta como tales, y un validador que siempre
+# falla se ignora. Declarandolas, se VERIFICAN de verdad contra el disco en vez
+# de ignorarse a ciegas. Rutas relativas a la raiz de este proyecto.
+# Dejar vacio (@()) si el proyecto no cita ningun repo externo.
+$global:KB_EXTERNAL_ROOTS = @()
+
+# ============================================================================
 # Credenciales -- NUNCA hardcodear un valor real aca. Este archivo, una vez
 # copiado a _config.ps1, SI se trackea en git (a diferencia de los secretos
 # reales). Ver secrets-management.md del framework para el patron completo.

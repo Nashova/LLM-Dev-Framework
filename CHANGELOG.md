@@ -10,6 +10,46 @@ framework aplicándose a sí mismo la misma regla.
 
 ## [No liberado]
 
+### Corregido — dos defectos encontrados al consumir el framework en un proyecto real
+
+Nasheim es el primer proyecto que consume este framework de punta a punta, y esa corrida real
+expuso dos defectos que no se ven usando el framework sobre sí mismo. Ambos se corrigieron aquí,
+en el origen, en vez de parchearse en el proyecto destino.
+
+- **`validate-knowledge-base.sh` daba falsos positivos hasta volverse inservible.** Sobre un
+  proyecto real reportó 13 citas rotas de 27, todas falsas. Tres causas, tres correcciones:
+  (1) resolvía toda cita como relativa a la raíz del proyecto, así que marcaba como rotos los
+  enlaces relativos al documento que los cita — ahora resuelve ambas formas, igual que su gemelo
+  `.ps1`, que ya lo hacía; (2) aceptaba cualquier extensión, así que contaba menciones en prosa de
+  archivos de runtime (`.git/index.lock`) como citas de documentación — ahora usa la misma lista
+  blanca de extensiones que el `.ps1`; (3) no tenía forma de expresar una cita legítima a otro
+  repo — ver el punto siguiente. **Un validador que siempre falla se ignora, y entonces deja de
+  detectar las roturas reales**, que es exactamente lo que este script existe para evitar.
+- **`validate-knowledge-base.ps1` / `.sh`: nueva variable `KB_EXTERNAL_ROOTS`** en
+  `_config.template.ps1` / `.sh`. Un proyecto que sigue este framework cita a propósito archivos
+  que viven en el repo del framework ("ver `docs/03_architecture_patterns/xxx.md` del framework").
+  Esas citas no están rotas, pero tampoco deberían ignorarse a ciegas: declarando el repo hermano,
+  el validador las **verifica** de verdad contra el disco. Vacío por default — sin configurar, el
+  comportamiento no cambia.
+- **`validate-knowledge-base.sh`: de varios minutos a segundos.** Lanzaba dos subprocesos
+  (`echo | grep`) por cada línea de cada documento; sobre 43 documentos son miles de forks, y en
+  Git Bash para Windows la corrida pasaba de ~2 segundos a más de 8 minutos — inaceptable para algo
+  que se supone corre antes de cada PR. Ahora filtra y extrae en una sola pasada por archivo:
+  mismo resultado (mismo conteo, mismo orden, sin deduplicar), 9.9s contra 8+ minutos.
+- **`bootstrap-ai.ps1` / `.sh`: los enlaces relativos de `.github/copilot-instructions.md` estaban
+  rotos.** El script copiaba `AGENT_GUIDE.md` verbatim a un destino que vive un nivel más abajo, así
+  que todos sus enlaces relativos (`README.md`, `docs/...`) apuntaban a un nivel que no existe desde
+  `.github/`. Ahora reescribe los enlaces con el `../` que corresponde a la profundidad del destino.
+  Se reescribe solo lo que es ruta relativa de verdad: quedan intactas las anclas (`#seccion`), las
+  URLs, los `mailto:` y las rutas absolutas. Los cinco destinos de la raíz no cambian.
+
+**Verificación** (no asumida): los dos validadores reportan ahora 34 citas revisadas / 0 rotas sobre
+la documentación de este mismo repo, con conteos idénticos entre `.ps1` y `.sh`, y una prueba
+negativa — agregar una cita a un archivo inexistente — hace fallar a ambos con salida 1. Para
+`bootstrap-ai` se generó un proyecto de prueba con enlaces de cada tipo (relativo simple, con
+carpeta, hacia arriba, con ancla, ancla pura, URL, `mailto:`, directorio) y se comparó la salida de
+ambos formatos: idénticas, con `../` aplicado solo donde corresponde.
+
 ### Agregado — sistema de skills
 
 - **`skills/`**: nueve skills propias del framework (MIT, sin dependencias de terceros) que codifican su

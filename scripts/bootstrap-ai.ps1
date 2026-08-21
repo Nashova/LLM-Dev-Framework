@@ -6,6 +6,10 @@
 # CLAUDE.md/.cursorrules/etc. escrito a mano, lo deja intacto y avisa. Con -Force lo respalda
 # como <archivo>.bak antes de reemplazarlo.
 #
+# ENLACES RELATIVOS: los destinos que viven en un subdirectorio (.github/copilot-instructions.md)
+# reciben los enlaces de AGENT_GUIDE.md reescritos con el '../' que corresponde a su profundidad.
+# Los destinos en la raiz se copian sin tocar.
+#
 # Uso: powershell -File scripts/bootstrap-ai.ps1 [-TargetDir .] [-Force] [-DryRun]
 
 param(
@@ -44,8 +48,27 @@ $targets = @(
 )
 
 $content = Get-Content $sourceGuide -Raw
-$payload = $marker + "`n`n" + $content
 $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+
+# Reescribe los enlaces relativos de Markdown para un destino que vive N niveles por debajo
+# de la raiz. Sin esto, un archivo generado en un subdirectorio (el caso real:
+# .github/copilot-instructions.md) hereda los enlaces de AGENT_GUIDE.md tal cual, y todos
+# apuntan a un nivel que ya no existe desde ahi.
+#
+# Se reescribe solo lo que es una ruta relativa de verdad: el patron exige que el destino
+# empiece con letra/digito/punto/guion-bajo (excluye anclas '#...' y rutas absolutas '/...')
+# y que NO contenga ':' (excluye 'https://', 'mailto:', 'obsidian://' y rutas tipo 'C:\...').
+function Convert-RelativeLinks([string]$text, [int]$depth) {
+    if ($depth -le 0) { return $text }
+    $prefix = ("../" * $depth)
+    return [regex]::Replace($text, '\]\(([A-Za-z0-9_.][^):]*)\)', { param($m) "](" + $prefix + $m.Groups[1].Value + ")" })
+}
+
+# Profundidad de un destino respecto a la raiz: cuantos separadores tiene su ruta relativa.
+function Get-DestDepth([string]$destPath, [string]$rootPath) {
+    $rel = $destPath.Substring($rootPath.Length).TrimStart('\', '/')
+    return ($rel -split '[\\/]').Count - 1
+}
 
 $written = 0; $skipped = 0; $backed = 0
 
@@ -74,8 +97,15 @@ foreach ($t in $targets) {
         if (-not $DryRun) { New-Item -ItemType Directory -Path $parent -Force | Out-Null }
     }
 
+    $depth = Get-DestDepth $t.Path $root
+    $payload = $marker + "`n`n" + (Convert-RelativeLinks $content $depth)
+
     if (-not $DryRun) { [System.IO.File]::WriteAllText($t.Path, $payload, $utf8NoBom) }
-    Write-Host ("  [OK] " + $t.Name + " -> " + $leaf) -ForegroundColor Green
+    if ($depth -gt 0) {
+        Write-Host ("  [OK] " + $t.Name + " -> " + $leaf + " (enlaces relativos ajustados $depth nivel(es))") -ForegroundColor Green
+    } else {
+        Write-Host ("  [OK] " + $t.Name + " -> " + $leaf) -ForegroundColor Green
+    }
     $written++
 }
 

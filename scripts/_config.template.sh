@@ -26,6 +26,18 @@ DOC_FILES=(
 )
 
 # ============================================================================
+# Repos externos para validate-knowledge-base.sh/.ps1
+# ============================================================================
+# Si la documentacion de este proyecto cita a proposito archivos que viven en
+# OTRO repo -- tipicamente este framework ("ver docs/03_architecture_patterns/
+# xxx.md del framework") -- declaralo aca. Esas citas no estan rotas, pero sin
+# esta lista el validador las reporta como tales, y un validador que siempre
+# falla se ignora. Declarandolas, se VERIFICAN de verdad contra el disco en vez
+# de ignorarse a ciegas. Rutas relativas a la raiz de este proyecto.
+# Dejar vacio si el proyecto no cita ningun repo externo.
+KB_EXTERNAL_ROOTS=()
+
+# ============================================================================
 # Git provider (ship.sh) -- ver docs en scripts/git-provider-pr.sh
 # ============================================================================
 # Se autodetecta por la URL del remoto 'origin'; solo hace falta llenar esto
