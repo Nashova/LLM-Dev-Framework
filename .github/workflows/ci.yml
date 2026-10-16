@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  bash:
+    name: Validadores (Bash)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sintaxis y line-endings de los scripts (safety-check)
+        run: bash scripts/safety-check.sh
+
+      - name: Citas archivo:línea de la documentación (anti-drift)
+        run: bash scripts/validate-knowledge-base.sh
+
+      - name: Cada script tiene su gemelo .ps1 / .sh
+        run: |
+          status=0
+          for f in scripts/*.sh; do
+            [ -f "${f%.sh}.ps1" ] || { echo "Falta el gemelo .ps1 de $f"; status=1; }
+          done
+          for f in scripts/*.ps1; do
+            [ -f "${f%.ps1}.sh" ] || { echo "Falta el gemelo .sh de $f"; status=1; }
+          done
+          exit $status
+
+      - name: Enlaces y anclas de la documentación
+        run: python3 .github/scripts/check-links.py
+
+  powershell:
+    name: Validadores (Windows PowerShell 5.1)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Los .ps1 parsean y son ASCII puro
+        run: |
+          $failed = $false
+          foreach ($f in Get-ChildItem scripts -Filter *.ps1) {
+            $tokens = $null
+            $errors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($f.FullName, [ref]$tokens, [ref]$errors)
+            if ($errors.Count -gt 0) {
+              Write-Host "Error de sintaxis en $($f.Name): $($errors[0].Message)"
+              $failed = $true
+            }
+            $nonAscii = [System.IO.File]::ReadAllBytes($f.FullName) | Where-Object { $_ -gt 127 } | Select-Object -First 1
+            if ($null -ne $nonAscii) {
+              Write-Host "$($f.Name) contiene caracteres no ASCII (los .ps1 deben ser ASCII puro)"
+              $failed = $true
+            }
+          }
+          if ($failed) { exit 1 }
+
+      - name: Sintaxis y line-endings de los scripts (safety-check.ps1)
+        run: .\scripts\safety-check.ps1
+
+      - name: Citas archivo:línea de la documentación (validate-knowledge-base.ps1)
+        run: .\scripts\validate-knowledge-base.ps1

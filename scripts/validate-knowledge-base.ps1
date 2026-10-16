@@ -4,7 +4,7 @@
 #
 # Soporta:
 #  - Citas con numero de linea (`app/models/user.rb:45`)
-#  - Citas relativas al proyecto, al documento que las cita, o a submódulos
+#  - Citas relativas al proyecto, al documento que las cita, o a submodulos
 #  - Citas a repos externos declarados en KB_EXTERNAL_ROOTS de _config.ps1. Existe para el caso
 #    real de un proyecto cuya documentacion cita a proposito archivos de OTRO repo (tipicamente
 #    este framework: "ver docs/03_architecture_patterns/xxx.md del framework"). Esas citas no
@@ -81,7 +81,7 @@ foreach ($doc in $files) {
             [void]$candidates.Add((Join-Path $root $cite))
             [void]$candidates.Add((Join-Path $doc.DirectoryName $cite))
             
-            # Buscar en subcarpetas de primer nivel (submódulos)
+            # Buscar en subcarpetas de primer nivel (submodulos)
             Get-ChildItem -Path $root -Directory -ErrorAction SilentlyContinue | ForEach-Object {
                 [void]$candidates.Add((Join-Path $_.FullName $cite))
                 [void]$candidates.Add((Join-Path (Join-Path $_.FullName "src") $cite))

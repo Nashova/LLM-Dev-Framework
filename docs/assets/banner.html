@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>LLM Dev Framework — banner</title>
+<style>
+  /* Fuente del banner de README y de la vista previa social (1280x640).
+     Regenerar: msedge --headless=new --window-size=1280,640 --force-device-scale-factor=1 --hide-scrollbars --screenshot=docs/assets/banner.png file:///RUTA/docs/assets/banner.html */
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1280px; height: 640px; overflow: hidden; }
+  body {
+    font-family: Inter, 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
+    color: #f8fafc;
+    background:
+      linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px) 0 0 / 48px 48px,
+      linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px) 0 0 / 48px 48px,
+      radial-gradient(900px 500px at 88% 8%, rgba(212,163,115,.22), transparent 60%),
+      linear-gradient(135deg, #0b1220 0%, #131c31 100%);
+    padding: 64px 88px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .tag {
+    align-self: flex-start;
+    font-size: 20px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+    color: #D4A373; border: 1.5px solid rgba(212,163,115,.55); border-radius: 999px; padding: 8px 20px;
+  }
+  h1 { margin-top: 34px; font-size: 104px; line-height: 1; font-weight: 800; letter-spacing: -0.035em; }
+  h1 span { color: #D4A373; }
+  .es { margin-top: 26px; font-size: 35px; font-weight: 600; color: #e2e8f0; white-space: nowrap; line-height: 1.25; }
+  .en { margin-top: 10px; font-size: 25px; color: #94a3b8; white-space: nowrap; }
+  .stats { margin-top: auto; display: flex; gap: 20px; }
+  .stat { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: 18px; padding: 16px 26px; min-width: 200px; }
+  .stat b { display: block; font-size: 44px; line-height: 1; font-weight: 800; color: #fff; }
+  .stat i { display: block; margin-top: 8px; font-style: normal; font-size: 21px; color: #cbd5e1; }
+  .tools { position: absolute; right: 88px; top: 60px; text-align: right; font-size: 21px; color: #94a3b8; line-height: 1.6; }
+  .tools strong { color: #e2e8f0; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="tag">Open source · MIT</div>
+  <h1>LLM Dev <span>Framework</span></h1>
+  <p class="es">Construye software con agentes de IA, sin repetir los mismos errores.</p>
+  <p class="en">Build software with AI agents — without repeating the same mistakes.</p>
+  <div class="stats">
+    <div class="stat"><b>9</b><i>skills</i></div>
+    <div class="stat"><b>23</b><i>patrones</i></div>
+    <div class="stat"><b>11</b><i>plantillas</i></div>
+    <div class="stat"><b>8</b><i>scripts PS + Bash</i></div>
+  </div>
+  <div class="tools"><strong>Compatible con</strong><br>Claude · Gemini · Cursor<br>Copilot · Windsurf · Codex</div>
+</body>
+</html>

@@ -1,7 +1,7 @@
 # get-project-map.ps1 - Generador universal de mapa de estado para LLMs y desarrolladores
-# Inspecciona el repositorio actual (monorepo, multi-repo o repo estándar) y muestra un
-# resumen instantáneo de: ramas activas, archivos modificados/sin commitear, últimos commits,
-# métricas de código y configuración de puertos.
+# Inspecciona el repositorio actual (monorepo, multi-repo o repo estandar) y muestra un
+# resumen instantaneo de: ramas activas, archivos modificados/sin commitear, ultimos commits,
+# metricas de codigo y configuracion de puertos.
 #
 # Uso: powershell -File scripts/get-project-map.ps1 [-RootPath .]
 
@@ -15,7 +15,7 @@ $dateStr = Get-Date -Format "yyyy-MM-dd HH:mm"
 Write-Host "================ MAPA DEL PROYECTO ================" -ForegroundColor Cyan
 Write-Host "Raiz: $targetPath   Fecha: $dateStr`n"
 
-# 1. Detectar repositorios Git anidados o repo raíz
+# 1. Detectar repositorios Git anidados o repo raiz
 $gitRepos = @()
 if (Test-Path (Join-Path $targetPath ".git")) {
     $gitRepos += @{ Name = "RAIZ"; Path = $targetPath; IsRoot = $true }

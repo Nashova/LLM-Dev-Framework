@@ -38,7 +38,7 @@ $global:RISK_SIGNAL_PATTERNS = @(
 )
 
 # Docs que SI cuentan como "ya lo documentaste" cuando se tocan junto con
-# un archivo de riesgo. Agregar acá CUALQUIER doc que el equipo use
+# un archivo de riesgo. Agregar aca CUALQUIER doc que el equipo use
 # activamente para esto -- un doc que se actualiza en la practica pero no
 # esta en esta lista genera avisos en falso (ver
 # docs/00_philosophy/doc-freshness-strategy.md del framework).

@@ -10,6 +10,31 @@ framework aplicándose a sí mismo la misma regla.
 
 ## [No liberado]
 
+### Agregado — presentación pública del repositorio y CI
+
+El repositorio pasó a ser público; esta entrada lo deja presentable y le aplica a sí mismo lo que
+predica (verificación automática en cada cambio).
+
+- **Integración continua** ([`ci.yml`](.github/workflows/ci.yml)): en Linux corre `safety-check.sh`
+  y `validate-knowledge-base.sh`, exige que cada script tenga su gemelo `.ps1` / `.sh` y verifica
+  los enlaces; en Windows PowerShell 5.1 parsea todos los `.ps1`, exige que sean ASCII puro y corre
+  `safety-check.ps1` y `validate-knowledge-base.ps1`.
+- **Verificador de enlaces** ([`check-links.py`](.github/scripts/check-links.py)): detecta enlaces
+  relativos y anclas `#sección` rotos en la documentación. Excluye a propósito las plantillas, cuyos
+  enlaces apuntan a rutas del proyecto que las adopta.
+- **README** rediseñado (banner, insignias, índice, tablas de skills y patrones, inicio rápido,
+  secciones plegables) y su versión en inglés, [`README.en.md`](README.en.md).
+- **Salud de la comunidad**: [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md)
+  (reporte privado de vulnerabilidades), plantillas de issue y de pull request.
+
+### Corregido — acentos en comentarios de tres `.ps1`
+
+La regla del framework es que los `.ps1` se escriben en ASCII puro (PowerShell 5.1 lee un archivo sin
+BOM como CP1252). Tres scripts —`get-project-map.ps1`, `validate-knowledge-base.ps1` y
+`_config.template.ps1`— la incumplían con acentos en comentarios; inofensivos hoy, pero el chequeo de
+la nueva CI los marcó, y la regla solo vale si se verifica. Se transliteraron (solo comentarios, sin
+cambio de comportamiento ni de saltos de línea).
+
 ### Corregido — dos defectos encontrados al consumir el framework en un proyecto real
 
 Nasheim es el primer proyecto que consume este framework de punta a punta, y esa corrida real
