@@ -13,7 +13,7 @@ jobs:
     name: Validadores (Bash)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Sintaxis y line-endings de los scripts (safety-check)
         run: bash scripts/safety-check.sh
@@ -42,7 +42,7 @@ jobs:
       run:
         shell: powershell
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Los .ps1 parsean y son ASCII puro
         run: |
